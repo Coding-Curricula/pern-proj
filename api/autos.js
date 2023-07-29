@@ -1,6 +1,8 @@
 const express = require('express');
+const { StatusCodes } = require('http-status-codes');
 const router = express.Router();
-const { getAllAutos, getAutoById, createAuto, updateAuto, deleteAuto } = require('../db');
+// const { getAllAutos, getAutoById, createAuto, updateAuto, deleteAuto } = require('../db');
+const { getAllAutos, getAutoById, createAuto, updateAuto, deleteAuto } = require('../model');
 
 // GET - /api/autos - returns a list of autos - PUBLIC
 router.get('/', async (req, res, next) => {
@@ -20,7 +22,12 @@ router.get('/:id', async (req, res, next) => {
     try {
         const auto = await getAutoById(id);
 
-        res.send(auto);
+        if (auto && auto.length) {
+            res.send(auto);
+        } else {
+            res.status(StatusCodes.NOT_FOUND).send(`Couldn't find auto with ID: ${id}`);
+        }
+
     } catch (error) {
         next(error);
     }
@@ -36,6 +43,7 @@ router.post('/', async (req, res, next) => {
 
         res.send(auto);
     } catch (error) {
+        // res.status(StatusCodes.BAD_REQUEST).send(`Bad Request. Try again.`)
         next(error);
     }
 });
